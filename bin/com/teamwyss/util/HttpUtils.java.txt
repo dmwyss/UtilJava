@@ -40,6 +40,9 @@ public class HttpUtils {
 		return iOut;
 	}
 
+	/**
+	 * Convert an object to a serializable xml object.
+	 */
 	public String valueObjectToXml(String sObjectType, String sMode, String sStatus, String sStatusMessage, String[][] aasFields) {
 		StringBuffer sbOut = new StringBuffer();
 		sbOut.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
