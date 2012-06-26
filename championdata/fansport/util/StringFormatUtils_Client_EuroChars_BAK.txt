@@ -1,0 +1,14 @@
+package com.championdata.fansport.util;
+
+public class StringFormatUtils_Client_EuroChars_BAK {
+	public static void main(String[] as){
+		StringFormatUtils_Client_EuroChars_BAK sfuc = new StringFormatUtils_Client_EuroChars_BAK();
+		sfuc.doReduceRepeatedCharsTest("", 2, "");
+	}
+
+	private void doReduceRepeatedCharsTest(String sIn, int iMaxRepeats, String sExpected) {
+		StringFormatUtils sfu = new StringFormatUtils();
+		String sGot = sfu.reduceRepeatedChars(sIn, iMaxRepeats);
+		System.out.println((sGot.equals(sExpected)) + " " + sGot + " - " + sExpected);
+	}
+}

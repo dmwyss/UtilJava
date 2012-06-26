@@ -1,0 +1,49 @@
+package com.championdata.fansport.util;
+
+
+public class MessageTokenizer_Client {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+		String sTemplate = "";
+
+/*		sTemplate = "";
+		doTest(sTemplate);
+
+		sTemplate = "this is just normal text";
+		doTest(sTemplate);
+
+		sTemplate = "start stuff $IF{13004$NOTEQUALS$13004}This is NOT 13004$ENDIF{}middlestuff$IF{13004$EQUALS$13004}color:#F80;$ENDIF{}end stuff";
+		doTest(sTemplate);
+
+		sTemplate = "start stuff $IF{13004$NOTEQUALS$13004}This is NOT 13004$ENDIF{}middlestuff$IF{13004$EQUALS$13004}color:#F80;end stuff";
+		doTest(sTemplate);
+
+		sTemplate = "start stuff $IF{13004$NOTQUALS$13004}This is NOT 13004$ENDIF{}middlestuff$IF{13004$EQUALS$13004}color:#F80;end stuff";
+		doTest(sTemplate);
+
+		sTemplate = "start stuff $IF{$EQUALS$}color:#F80;$ENDIF{}end stuff";
+		doTest(sTemplate);
+
+		sTemplate = "$IF{$EQUALS$}color:#F80;$ENDIF{}end stuff $IF{$NOTEQUALS$}color:#F80;$ENDIF{}end stuff";
+		doTest(sTemplate);
+
+		sTemplate = "$IF{$EQUALS$}color:#F80;$ENDIF{}";
+		doTest(sTemplate);
+ */
+
+		sTemplate = "should be nothing $IF{$EQUALS$}$ENDIF{}";
+		doTest(sTemplate);
+	}
+
+	private static void doTest(String sIn){
+		MessageTokenizer mto = new MessageTokenizer();
+		System.out.println(mto.getConditionalMessage(sIn));
+	}
+
+}
+
+

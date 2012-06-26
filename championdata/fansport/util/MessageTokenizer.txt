@@ -1,0 +1,234 @@
+package com.championdata.fansport.util;
+
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import com.championdata.fansport.model.CompetitionVO;
+import com.championdata.fansport.model.UserCompdataVO;
+import com.championdata.fansport.model.UserCredentials;
+import com.championdata.fansport.model.UserVO;
+
+/**
+ * Swap marker text objects in a message for live information.
+ * For example "hello ${user.firstname}." will return "Hello Bill."
+ * @author david.wyss
+ */
+public class MessageTokenizer {
+
+	HashMap<String, String> hm = new HashMap<String, String>();
+	public static final String MARKER_START = "${";
+	public static final String MARKER_END = "}";
+	public static final String CONDITIONAL_MARKER_START = "$IF{";
+	public static final String CONDITIONAL_MARKER_END_END = "$ENDIF{}";
+	private static final String CONDITIONAL_SEPARATOR = "$EQUALS$";
+	private static final String CONDITIONAL_SEPARATOR_NOT = "$NOTEQUALS$";
+
+	/**
+	 * Construct the text replacing object, with a list of all the values to find, and replace.
+	 * @param cvo Competition data.
+	 * @param uvo Information about a user.
+	 */
+	public MessageTokenizer(){
+	}
+
+	/**
+	 * Set a number of token pairs, using a CompetitionVO.
+	 * You can only use these tokens if you have set them first.
+	 * @param cvo Data to make the real data.
+	 */
+	public void prepareTokens(CompetitionVO cvo) {
+		SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		this.hm.put("client.name", cvo.getClient().getName());
+		this.hm.put("competition.adminEmail", cvo.getAdminEmail());
+		this.hm.put("competition.baseUrl", cvo.getBaseUrl());
+		this.hm.put("competition.id", cvo.getIdAsString());
+		this.hm.put("competition.styleAliasCompId", Integer.toString(cvo.getStyleAliasCompId()));
+		this.hm.put("competition.label", cvo.getLabel());
+		this.hm.put("competition.labelShort", cvo.getLabelShort());
+		this.hm.put("sport.name", cvo.getSport().getName());
+		this.hm.put("competition.currentRound.no", Integer.toString(cvo.getRoundData().getCurrentRound().getCompetitionRoundNo()));
+		this.hm.put("competition.currentRound.dstart", sdf.format(cvo.getRoundData().getCurrentRound().getDstart()));
+		this.hm.put("competition.currentRound.dend", sdf.format(cvo.getRoundData().getCurrentRound().getDend()));
+		this.hm.put("competition.previousRound.no", Integer.toString(cvo.getRoundData().getPreviousRound().getCompetitionRoundNo()));
+		this.hm.put("competition.previousRound.dstart", sdf.format(cvo.getRoundData().getPreviousRound().getDstart()));
+		this.hm.put("competition.previousRound.dend", sdf.format(cvo.getRoundData().getPreviousRound().getDend()));
+	}
+
+	/**
+	 * Set a number of token pairs, using a UserVO.
+	 * You can only use these tokens if you have set them first.
+	 * @param uvo Data to make the real data.
+	 */
+	public void prepareTokens(UserVO uvo) {
+		this.hm.put("user.activationCode", uvo.getActivationCode());
+		this.hm.put("user.email", uvo.getEmail());
+		this.hm.put("user.firstname", uvo.getFirstname());
+		this.hm.put("user.surname", uvo.getSurname());
+		this.hm.put("user.displayname", uvo.getDisplayname());
+		this.hm.put("user.password", uvo.getPassword());
+	}
+
+	/**
+	 * Set a number of token pairs, using a CompetitionVO.
+	 * You can only use these tokens if you have set them first.
+	 * @param cvo Data to make the real data.
+	 */
+	public void prepareTokens(UserCredentials uc) {
+		this.hm.put("user.email", uc.getEmail());
+		this.hm.put("user.displayname", uc.getDisplayname());
+		this.hm.put("user.firstname", uc.getFirstname());
+		this.hm.put("user.id", uc.getId());
+		this.hm.put("user.surname", uc.getSurname());
+	}
+
+	/**
+	 * Set a number of token pairs, using a CompetitionVO.
+	 * You can only use these tokens if you have set them first.
+	 * @param cvo Data to make the real data.
+	 */
+	public void prepareTokens(UserCompdataVO ucd) {
+		prepareTokens(ucd, -1);
+	}
+
+	/**
+	 * Set a number of token pairs, using a CompetitionVO.
+	 * You can only use these tokens if you have set them first.
+	 * @param cvo Data to make the real data.
+	 */
+	public void prepareTokens(UserCompdataVO ucd, int iLeagueId) {
+		this.hm.put("user.league.name", ucd.getLeagueName(iLeagueId));
+		this.hm.put("user.league.key", ucd.getLeagueKey(iLeagueId));
+		this.hm.put("user.squad.name", ucd.getSquadName());
+		this.hm.put("user.squad.id", Integer.toString(ucd.getSquadId()));
+		this.hm.put("user.score.comp", Integer.toString(ucd.getSquadscorecomp()));
+		this.hm.put("user.score.round", Integer.toString(ucd.getSquadscoreround()));
+		this.hm.put("user.margin.comp", Integer.toString(ucd.getSquadscorecomp()));
+		this.hm.put("user.margin.round", Integer.toString(ucd.getSquadscoreround()));
+	}
+
+	/**
+	 * Set a single token pair.
+	 * You can only use these tokens if you have set them first.
+	 * @param cvo Data to make the real data.
+	 */
+	public void prepareToken(String sKey, String sValue) {
+		this.hm.put(sKey, sValue);
+	}
+
+	/**
+	 * Construct using a hashmap.
+	 * @param settings
+	 */
+	public MessageTokenizer(HashMap<String, String> settings) {
+		this.hm = settings;
+	}
+
+	/**
+	 * Do the work of swapping marker objects for real data.
+	 * @param sIn
+	 * @return
+	 */
+	public String getTokenizedMessage(String sIn) {
+		if((sIn == null) || (sIn.length() == 0)){
+			return "";
+		}
+		if((this.hm == null) || (this.hm.size() == 0)){
+			return sIn;
+		}
+		int iPosStartMarker = sIn.indexOf(MARKER_START);
+		int iPosEndMarker = 0;
+		int iPosStartText = 0;
+		if(iPosStartMarker == -1){
+			// No replacable markers...
+			return sIn;
+		}
+		StringBuffer sbOut = new StringBuffer();
+		while(iPosStartMarker != -1){
+			// We know where the first identifier is, capture from absolute-start
+			// until the beginning of the indentifier.
+			sbOut.append(sIn.substring(iPosStartText, iPosStartMarker));
+			iPosEndMarker = sIn.indexOf(MARKER_END, iPosStartMarker);
+			String tokenRaw = sIn.substring(iPosStartMarker + MARKER_START.length(), iPosEndMarker);
+			if(tokenRaw.equals("user.squad.id")){
+				int i = 0;
+			}
+			String tokenConverted = this.hm.get(tokenRaw);
+			if(tokenConverted == null){
+				ErrorReporter.reportError(ErrorReporter.SEVERITY_HIGH, this.getClass(), "getTokenizedMessage", "Failed to find replacement value for token [" + tokenRaw + "]");
+				tokenConverted = "VALUE_FOR_[" + tokenRaw + "]NOT_FOUND";
+			}
+			sbOut.append(tokenConverted);
+			iPosStartText = iPosEndMarker + MARKER_END.length();
+			iPosStartMarker = sIn.indexOf(MARKER_START, iPosStartText);
+		}
+		// Put the remainder into the out stream.
+		sbOut.append(sIn.substring(iPosStartText));
+		return sbOut.toString();
+	}
+
+	public String[] getGetAllMarkers(CompetitionVO cvo, UserCredentials uc, UserCompdataVO ucd){
+		this.prepareTokens(cvo);
+		this.prepareTokens(ucd);
+		this.prepareTokens(uc);
+		String[] asOut = new String[this.hm.size()];
+		Iterator iterKeys = this.hm.keySet().iterator();
+		for(int iCompCounter = 0; iCompCounter < this.hm.size(); iCompCounter++){
+			asOut[iCompCounter] = (String)iterKeys.next();
+		}
+		return asOut;
+	}
+
+	/**
+	 * Do the work of swapping marker objects for real data.
+	 * @param sIn
+	 * @return
+	 */
+	public String getConditionalMessage(String sIn) {
+		if((sIn == null) || (sIn.length() == 0)){
+			return "";
+		}
+		int iStartStartMarkerPos = sIn.indexOf(CONDITIONAL_MARKER_START);
+		int iStartEndMarkerPos = 0;
+		int iCurrentCursorPos = 0;
+		if(iStartStartMarkerPos == -1){
+			// No replacable markers...
+			return sIn;
+		}
+		StringBuffer sbOut = new StringBuffer();
+		int iEndStartPos = -1;
+		while(iStartStartMarkerPos != -1){
+			// We know where the first identifier is, capture from absolute-start until the beginning of the indentifier.
+			sbOut.append(sIn.substring(iCurrentCursorPos, iStartStartMarkerPos));
+			iStartEndMarkerPos = sIn.indexOf(MARKER_END, iStartStartMarkerPos);
+			String sCondition = sIn.substring(iStartStartMarkerPos, iStartEndMarkerPos);
+			iEndStartPos = sIn.indexOf(CONDITIONAL_MARKER_END_END, iStartEndMarkerPos);
+			if(iEndStartPos == -1){
+				return sbOut.toString() + "<!-- Error occured in instruction starting at char " + iStartStartMarkerPos + ". -->";
+			}
+			int iStartCondSep = sIn.indexOf(CONDITIONAL_SEPARATOR, iStartStartMarkerPos);
+			boolean isCondSepYes = true;
+			int iCondSepLength = CONDITIONAL_SEPARATOR.length();
+			if(iStartCondSep == -1 || iStartCondSep > iEndStartPos){
+				// Could not find if-true evaluator, use if not true evaluator.
+				isCondSepYes = false;
+				iStartCondSep = sIn.indexOf(CONDITIONAL_SEPARATOR_NOT, iStartStartMarkerPos);
+				iCondSepLength = CONDITIONAL_SEPARATOR_NOT.length();
+			}
+			if(iStartCondSep == -1){
+				return sbOut.toString() + "<!-- Error occured in instruction starting at char " + iStartStartMarkerPos + ". -->";
+			}
+			String sVariant = sIn.substring(iStartStartMarkerPos + CONDITIONAL_MARKER_START.length(), iStartCondSep);
+			String sConstant = sIn.substring(iStartCondSep + iCondSepLength, iStartEndMarkerPos);
+			if(sVariant.equals(sConstant) == isCondSepYes){
+				String sNewToAdd = sIn.substring((iStartEndMarkerPos  + (MARKER_END.length())), iEndStartPos);
+				sbOut.append(sIn.substring(iStartEndMarkerPos + (MARKER_END.length()), iEndStartPos));
+			}
+			iCurrentCursorPos = iEndStartPos + (CONDITIONAL_MARKER_END_END.length());
+			iStartStartMarkerPos = sIn.indexOf(CONDITIONAL_MARKER_START, iCurrentCursorPos);
+		}
+		// Put the remainder into the out stream.
+		sbOut.append(sIn.substring(iCurrentCursorPos));
+		return sbOut.toString();
+	}
+}

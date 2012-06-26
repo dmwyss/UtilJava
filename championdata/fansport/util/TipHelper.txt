@@ -1,0 +1,295 @@
+package com.championdata.fansport.util;
+
+import java.util.ArrayList;
+
+import com.championdata.fansport.data.TipsValidationStatus;
+import com.championdata.fansport.model.ChallengeDAO;
+import com.championdata.fansport.model.ChallengeVO;
+import com.championdata.fansport.model.CompetitionRoundDataVO;
+import com.championdata.fansport.model.RoundVO;
+import com.championdata.fansport.model.UsquadTipsDAO;
+
+public class TipHelper {
+
+	public TipsValidationStatus isValid(CompetitionRoundDataVO crdvo, int iRoundId, int[][] aaiTips) {
+		if((!crdvo.isRoundOpenWithId(iRoundId)) || (aaiTips.length == 0)) {
+			return new TipsValidationStatus(1, "failure", "round.closed");
+		}
+		return new TipsValidationStatus(0, "success");
+	}
+
+	public TipsValidationStatus submitTips(Object objUCD, String sUsquadId, CompetitionRoundDataVO crdvo, String sTips, String sRoundId) {
+
+		StringFormatUtils sfu = new StringFormatUtils();
+		TipsValidationStatus tvsResponse = new TipsValidationStatus(0, "success");
+		// Object objUC =
+		// request.getSession().getAttribute(com.championdata.fansport.Constants.USERCREDENTIALS_BEAN_NAME);
+		if(objUCD == null) {
+			return new TipsValidationStatus(1, "failure", "userCredentials.notFound");
+		}
+		// String sUserId = request.getParameter("userId");
+		// int iUserId = sfu.toSafeInt(sUserId);
+		int iUsquadId = sfu.toSafeInt(sUsquadId);
+		ArrayUtils au = new ArrayUtils();
+		UsquadTipsDAO utd = new UsquadTipsDAO();
+		RoundVO rndCurrent = crdvo.getCurrentRound();
+		int iRoundCurrentId = rndCurrent.getId();
+		if(sTips != null) {
+			// Received tip data to persist.
+			int iRoundId = sfu.toSafeInt(sRoundId);
+			String[] asTips = au.split(sTips);
+			int[][] aaiTips = new int[asTips.length][];
+			for(int iTip = 0; iTip < asTips.length; iTip++) {
+				aaiTips[iTip] = au.splitToInt(asTips[iTip], ".");
+			}
+			// UserTipsDAO utd = new UserTipsDAO();
+			if(iRoundId == iRoundCurrentId) {
+				// We are looking at the current round. Remove matches which are
+				// not
+				// eligable for editing.
+				aaiTips = removeClosedTips(rndCurrent, aaiTips);
+			}
+			tvsResponse = isValid(crdvo, iRoundId, aaiTips);
+			if(tvsResponse.isValid()) {
+				com.championdata.fansport.model.UserCompdataVO ucd = (com.championdata.fansport.model.UserCompdataVO) objUCD;
+				ucd.setTips(iRoundId, aaiTips);
+				// utd.saveOrUpdateTips(iRoundId, iUserId, aaiTips);
+				utd.saveOrUpdateTips(iRoundId, iUsquadId, aaiTips);
+			}
+		}
+
+		return tvsResponse;
+	}
+
+	public TipsValidationStatus submitChallengeTips(Object objUCD, String sUsquadId, CompetitionRoundDataVO crdvo, String sRoundId, String sChallTips, String sChallengeId) {
+
+		StringFormatUtils sfu = new StringFormatUtils();
+		TipsValidationStatus tvsResponse = new TipsValidationStatus(0, "success");
+		// Object objUC =
+		// request.getSession().getAttribute(com.championdata.fansport.Constants.USERCREDENTIALS_BEAN_NAME);
+		if(objUCD == null) {
+			return new TipsValidationStatus(1, "failure", "userCredentials.notFound");
+		}
+		// String sUserId = request.getParameter("userId");
+		// int iUserId = sfu.toSafeInt(sUserId);
+		int iUsquadId = sfu.toSafeInt(sUsquadId);
+		ArrayUtils au = new ArrayUtils();
+		UsquadTipsDAO utd = new UsquadTipsDAO();
+		RoundVO rndCurrent = crdvo.getCurrentRound();
+		int iRoundCurrentId = rndCurrent.getId();
+		ChallengeDAO cdao = new ChallengeDAO();
+		com.championdata.fansport.model.UserCompdataVO ucd = (com.championdata.fansport.model.UserCompdataVO) objUCD;
+		if(sChallTips != null) {
+			// Received tip data to persist.
+			int iChallengeId = sfu.toSafeInt(sChallengeId);
+			int[][] aaiChTipsUi = au.splitToInt(sChallTips, "$", "#");
+			// Remove changes relating to old rounds.
+			aaiChTipsUi = removeClosedChallengeTips(crdvo, rndCurrent, aaiChTipsUi, iChallengeId, ucd.getCompetitionId());
+			if(aaiChTipsUi.length > 0) {
+				// Get what is in the database now. In format challenge_id,
+				// round_id,
+				// tip_number (cgroupId).
+				int[][] aaiChTipsDb = cdao.fetchChallengeTips(iChallengeId, iUsquadId);
+				// Make fetchChallengeTips(int iChallengeId, int iUsquadId)
+				ArrayList<int[]> alAllNonDeletes = new ArrayList<int[]>(22); // Used
+				// to hold psydo state, to validate.
+				ArrayList<int[]> alInserts = new ArrayList<int[]>(10); // Insertions
+				// sent to DB.
+				ArrayList<int[]> alUpdates = new ArrayList<int[]>(10); // Updates
+				// sent
+				// to DB.
+				ArrayList<int[]> alDeletes = new ArrayList<int[]>(5); // Deletions
+				// sent to DB.
+				createPostSaveStates(aaiChTipsDb, aaiChTipsUi, alAllNonDeletes, alInserts, alUpdates, alDeletes);
+				// We now have a complete picture of the choices which will
+				// exist
+				// after saving in alAllNonDeletes.
+				// Deletes do not count, because they will be deleted.
+				boolean isDuplicateRoundIdFound = au.isContainsDuplicates(alAllNonDeletes, 0);
+				boolean isDuplicateCgroupFound = au.isContainsDuplicates(alAllNonDeletes, 1);
+				if((!isDuplicateRoundIdFound) && (!isDuplicateCgroupFound)) {
+					cdao.insertChallengeTips(iChallengeId, iUsquadId, alInserts);
+					cdao.updateChallengeTips(iChallengeId, iUsquadId, alUpdates);
+					cdao.deleteChallengeTips(iChallengeId, iUsquadId, alDeletes);
+				} else {
+					tvsResponse = new TipsValidationStatus(1, "failure", "userData.challengeTips.invalid");
+				}
+			} else {
+				tvsResponse = new TipsValidationStatus(1, "failure", "userData.challengeTips.closed");
+			}
+		}
+		return tvsResponse;
+	}
+
+	/**
+	 * Create virtual image of the database state at the end of a change.
+	 * 
+	 * @param aaiChTipsDb Exiting challenge tips in database.
+	 * @param aaiChTipsUi Changes from the UI.
+	 * @param alAllNonDeletes Virtual state of the database after a save.
+	 * @param alInserts Tips to be inserted.
+	 * @param alUpdates Tips to be changed in db.
+	 * @param alDeletes Tips in db to be removed.
+	 */
+	public void createPostSaveStates(int[][] aaiChTipsDb, int[][] aaiChTipsUi, ArrayList<int[]> alAllNonDeletes, ArrayList<int[]> alInserts, ArrayList<int[]> alUpdates, ArrayList<int[]> alDeletes) {
+		// Look at everything in the database, and see if it is an update or
+		// delete.
+		// Merge exising and changed data.
+		for(int iChTipDb = 0; iChTipDb < aaiChTipsDb.length; iChTipDb++) {
+			int[] aiTempDb = aaiChTipsDb[iChTipDb];
+			boolean isDbFoundInUi = false;
+			for(int iChTipUi = 0; iChTipUi < aaiChTipsUi.length; iChTipUi++) {
+				int[] aiTempUi = aaiChTipsUi[iChTipUi];
+				// isDbFoundInUi = false;
+				if(aiTempDb[1] == aiTempUi[0]) {
+					// We are changing an existing entry.
+					if(aiTempUi[1] == 0) {
+						// It is a delete, dont add into final list.
+						alDeletes.add(aiTempUi);
+					} else if(aiTempDb[2] != aiTempUi[1]) {
+						// It is an update.
+						alUpdates.add(aiTempUi);
+						alAllNonDeletes.add(aiTempUi);
+					} else {
+						// It is in both, so stays the same.
+						// Unlikely situation if UI restricts saves correctly.
+						alAllNonDeletes.add(aiTempUi);
+					}
+					isDbFoundInUi = true;
+					break;
+				}
+			}
+			if(!isDbFoundInUi) {
+				alAllNonDeletes.add(new int[]{aiTempDb[1], aiTempDb[2]});
+			}
+		}
+		// Get everything in the ui which is not in the database.
+		// In other words, add the new changes.
+		for(int iChTipUi = 0; iChTipUi < aaiChTipsUi.length; iChTipUi++) {
+			int[] aiTempUi = aaiChTipsUi[iChTipUi];
+			boolean isUiFoundInDb = false;
+			for(int iChTipDb = 0; iChTipDb < aaiChTipsDb.length; iChTipDb++) {
+				int[] aiTempDb = aaiChTipsDb[iChTipDb];
+				if(aiTempDb[1] == aiTempUi[0]) {
+					isUiFoundInDb = true;
+					break;
+				}
+			}
+			if(!isUiFoundInDb) {
+				alAllNonDeletes.add(aiTempUi);
+				alInserts.add(aiTempUi);
+			}
+		}
+	}
+
+	private int[][] removeClosedChallengeTips(CompetitionRoundDataVO crdvo, RoundVO rndCurrent, int[][] aaiTips, int iChallengeId, int iCompId) {
+
+		int iClosedMatchCount = 0;
+		boolean[] abIsMatchOpen = new boolean[aaiTips.length];
+		for(int iChTip = 0; iChTip < aaiTips.length; iChTip++) {
+			int[] aiTipTemp = aaiTips[iChTip];
+
+			ChallengeDAO cdao = new ChallengeDAO();
+			ChallengeVO[] chvos = cdao.fetchChallengeComp(iCompId, aiTipTemp[0]);
+			boolean found = false;
+			boolean removed = false;
+			for(ChallengeVO chvo : chvos) {
+
+				// Check if the ids match, ie we have found the correct
+				// challenge
+				if(chvo.getId() == iChallengeId) {
+					found = true;
+					int iStartRoundId = chvo.getStartRoundId();
+					int iEndRoundId = chvo.getEndRoundId();
+
+					// Find the round no's for the round ids
+					int iStartRound = crdvo.getRoundIdToRoundNoMap().get(iStartRoundId);
+					int iEndRound = crdvo.getRoundIdToRoundNoMap().get(iEndRoundId);
+					int iTippedRound = crdvo.getRoundIdToRoundNoMap().get(aiTipTemp[0]);
+
+					if(iTippedRound < iStartRound || iTippedRound > iEndRound) {
+						// The current round is outside the challenge, so remove
+						// it
+						abIsMatchOpen[iChTip] = false;
+						iClosedMatchCount++;
+						removed = true;
+					}
+				}
+			}
+			if(!found) {
+				// We couldn't find the challenge as part of the round
+				// Assume that the challenge isn't part of the round, so they
+				// shouldn't
+				// be able to select it
+				abIsMatchOpen[iChTip] = false;
+				iClosedMatchCount++;
+				removed = true;
+			}
+			if(!removed) {
+				// If we have already removed the challenge, no need to check
+				// the start
+				// of the match
+
+				if(aiTipTemp[0] == rndCurrent.getId()) {
+					// Go and check if round has started.
+					if(rndCurrent.hasStarted()) {
+						abIsMatchOpen[iChTip] = false;
+						iClosedMatchCount++;
+					} else {
+						abIsMatchOpen[iChTip] = true;
+					}
+				} else if(crdvo.isRoundOpenWithId(aiTipTemp[0])) {
+					// It is
+					abIsMatchOpen[iChTip] = true;
+				} else {
+					abIsMatchOpen[iChTip] = false;
+					iClosedMatchCount++;
+				}
+			}
+		}
+		if(iClosedMatchCount > 0) {
+			int[][] aaiTipsReduced = new int[aaiTips.length - iClosedMatchCount][];
+			int iInsertionCounter = 0;
+			for(int iOrigListCounter = 0; iOrigListCounter < aaiTips.length; iOrigListCounter++) {
+				if(abIsMatchOpen[iOrigListCounter]) {
+					aaiTipsReduced[iInsertionCounter] = aaiTips[iOrigListCounter];
+					iInsertionCounter++;
+				}
+			}
+			aaiTips = aaiTipsReduced;
+		}
+		return aaiTips;
+	}
+
+	// private int[][] removeClosed(CompetitionRoundDataVO crdvo, int[][]
+	// aaiTips)
+	// {
+	private int[][] removeClosedTips(RoundVO rnd, int[][] aaiTips) {
+		// RoundVO rnd = crdvo.getCurrentRound();
+		int iClosedMatchCount = 0;
+		boolean[] abIsMatchOpen = new boolean[aaiTips.length];
+		for(int iM = 0; iM < aaiTips.length; iM++) {
+			if(rnd.isMatchOpen(aaiTips[iM][0])) {
+				abIsMatchOpen[iM] = true;
+			} else {
+				abIsMatchOpen[iM] = false;
+				iClosedMatchCount++;
+			}
+		}
+		if(iClosedMatchCount > 0) {
+			int[][] aaiTipsReduced = new int[aaiTips.length - iClosedMatchCount][];
+			int iInsertionCounter = 0;
+			for(int iOrigListCounter = 0; iOrigListCounter < aaiTips.length; iOrigListCounter++) {
+				if(abIsMatchOpen[iOrigListCounter]) {
+					aaiTipsReduced[iInsertionCounter] = aaiTips[iOrigListCounter];
+					iInsertionCounter++;
+				}
+			}
+			aaiTips = aaiTipsReduced;
+		} else {
+			return aaiTips;
+		}
+		return aaiTips;
+	}
+
+}

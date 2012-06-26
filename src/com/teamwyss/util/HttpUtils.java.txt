@@ -1,0 +1,83 @@
+package com.teamwyss.util;
+
+import javax.servlet.http.HttpServletRequest;
+
+public class HttpUtils {
+
+	/**
+	 * @param request
+	 * @param sParamName
+	 * @return
+	 */
+	public String safeGetParameter(HttpServletRequest request, String sParamName, String sDefault) {
+		String sValue = request.getParameter(sParamName);
+		if(sValue == null){
+			return sDefault;
+		}
+		return sValue;
+	}
+
+	/**
+	 * @param request
+	 * @param sParamName
+	 * @return
+	 */
+	public String safeGetParameter(HttpServletRequest request, String sParamName) {
+		return safeGetParameter(request, sParamName, "");
+	}
+	
+	/**
+	 * @param request
+	 * @param sParamName
+	 * @return
+	 */
+	public int safeGetParameterAsInt(HttpServletRequest request, String sParamName) {
+		String sValue = safeGetParameter(request, sParamName);
+		int iOut = 0;
+		try {
+			iOut = Integer.parseInt(sValue);
+		} catch (NumberFormatException e) {}
+		return iOut;
+	}
+
+	public String valueObjectToXml(String sObjectType, String sMode, String sStatus, String sStatusMessage, String[][] aasFields) {
+		StringBuffer sbOut = new StringBuffer();
+		sbOut.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
+		sbOut.append("\n<valueObject objectType=\"" + sObjectType + "\" mode=\"" + sMode + "\" status=\"" + sStatus + "\" statusMessage=\"" + sStatusMessage + "\">");
+		for(int iElemOuter = 0; iElemOuter < aasFields.length; iElemOuter++) {
+			sbOut.append("\n\t<field name=\"" + aasFields[iElemOuter][0] + "\" dataType=\"" + aasFields[iElemOuter][1] + "\">" + aasFields[iElemOuter][2] + "</field>");
+		}
+		sbOut.append("\n</valueObject>");
+		return sbOut.toString();
+	}
+
+	/**
+	 * Create a field for returning as XML.
+	 * @param sFieldName
+	 * @param sFieldValue
+	 * @return
+	 */
+	public String[] valueObjectField(String sFieldName, String sDataType, String sFieldValue) {
+		return new String[]{sFieldName, sDataType, sFieldValue};
+	}
+
+	/**
+	 * Create a field for returning as XML.
+	 * @param sFieldName
+	 * @param sFieldValue
+	 * @return
+	 */
+	public String[] valueObjectField(String sFieldName, String sFieldValue) {
+		return valueObjectField(sFieldName, "String", sFieldValue);
+	}
+
+	/**
+	 * Create a field for returning as XML.
+	 * @param sFieldName
+	 * @param sFieldValue
+	 * @return
+	 */
+	public String[] valueObjectField(String sFieldName, int iFieldValue) {
+		return valueObjectField(sFieldName, "int", "" + iFieldValue);
+	}
+}

@@ -1,0 +1,128 @@
+package com.championdata.fansport.util;
+
+import com.championdata.fansport.StringPatternValidator;
+import com.championdata.fansport.email.EmailMessage;
+import com.championdata.fansport.model.CompetitionVO;
+import com.championdata.fansport.model.MessageDAO;
+import com.championdata.fansport.model.MessageVO;
+import com.championdata.fansport.model.USquadDAO;
+import com.championdata.fansport.model.USquadVO;
+import com.championdata.fansport.model.UserCompdataDAO;
+import com.championdata.fansport.model.UserCompdataVO;
+import com.championdata.fansport.model.UserCredentials;
+import com.championdata.fansport.model.UserDAO;
+import com.championdata.fansport.model.UserVO;
+
+public class LoginHelper {
+
+	public static final String UNKNOWN = "1";
+
+	public static final String NOT_REGISTERED = "2";
+
+	public static final String EMAIL_INVALID = "3";
+
+	public static final String EMAIL_UNKNOWN = "4";
+
+	public static final String SENT_EMAIL = "5";
+
+	public static final String BIGPOND_ERROR = "6";
+
+	public static final String NO_ATTRIBUTES = "7";
+
+	public static final String NOT_CREATE_USER = "8";
+
+	public static final String CONSOLIDATED = "9";
+
+	public static final String INVALID = "10";
+
+	public static final String ERROR_STATUS = "errorStatus";
+
+	public UserVO findUserByExternalId(String externalId) {
+		UserDAO uf = new UserDAO();
+		UserVO uvo = uf.getUserVO(externalId);
+		return uvo;
+	}
+
+	/**
+	 * Retrieve the User given a tipping username and password
+	 * 
+	 * @param username
+	 * @param password
+	 * @return the matching user, or null if it could not be found
+	 */
+	public UserVO findTippingUser(String username, String password) {
+		UserDAO uf = new UserDAO();
+		UserVO uvo = uf.getUserVOByUsernameAndPassword(username, password);
+		return uvo;
+	}
+
+	public USquadVO findUSquad(UserVO uvo, CompetitionVO cvo) {
+		USquadDAO usdao = new USquadDAO();
+		USquadVO usvo = usdao.fetchUSquadVO(uvo.getIdAsInt(), cvo.getId());
+		return usvo;
+	}
+
+	public UserCompdataVO findUserCompdataVO(UserCredentials uc, CompetitionVO cvo, USquadVO usvo) {
+		UserDAO uf = new UserDAO();
+		uf.updateUserLastLogin(uc.getEmail());
+		UserCompdataDAO ucd = new UserCompdataDAO();
+		UserCompdataVO ucdvo = ucd.getCompData(cvo, uc, usvo);
+		return ucdvo;
+	}
+
+	public void updateUser(UserVO uvo) {
+		UserDAO uf = new UserDAO();
+		uf.setUserVO(uvo);
+		uf.save();
+	}
+
+	public String forgotUsernameOrPassword(String loginEmail, CompetitionVO cvo) {
+		StringPatternValidator stringPatternValidator = new StringPatternValidator();
+		// Validate the string pattern of the email address that they have
+		// entered.
+		stringPatternValidator.parse("email", loginEmail, StringPatternValidator.EMAIL);
+		if(stringPatternValidator.hasViolations()) {
+			return EMAIL_INVALID;
+		}
+		UserDAO uf = new UserDAO();
+		UserVO uvo = uf.fetchUserVOFromEmail(loginEmail);
+
+		if(uvo == null) {
+			// The email address that they entered does not exist.
+			return EMAIL_UNKNOWN;
+		}
+
+		sendEmail(cvo, uvo);
+
+		return SENT_EMAIL;
+
+	}
+
+	public void sendEmail(CompetitionVO cvo, UserVO uvo) {
+		// They have entered a valid email address. Send them an email.
+		// Make a blank Email, ready to be filled and sent later.
+		EmailMessage em = new EmailMessage(cvo);
+		// Set the recipient(s).
+		em.setRecipient(uvo.getEmail());
+		// Retrieve the appropriate message.
+		MessageDAO mesdao = new MessageDAO();
+		MessageVO mvo = mesdao.fetchMessageByCompSportName(cvo.getId(), cvo.getSport().getIdAsInt(), "Email_ForgotPassword");
+		// Get a Tokenizer, which will swap identifiers with relevant data.
+		MessageTokenizer meto = new MessageTokenizer();
+		meto.prepareTokens(cvo);
+		meto.prepareTokens(uvo);
+		// Set the real data in the message, retrive it and put in the Subject
+		// line.
+		em.setSubject(meto.getTokenizedMessage(mvo.getHead())); // ("Activation for "
+		// +
+		// cvo.getLabelShort()
+		// +
+		// " account.");
+		// Now do the same for the body: set the real data in the message, but
+		// put it in the body.
+		em.appendBody(meto.getTokenizedMessage(mvo.getBody()));
+		em.send();
+
+	}
+
+}

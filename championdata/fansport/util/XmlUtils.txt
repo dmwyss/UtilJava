@@ -1,0 +1,29 @@
+package com.championdata.fansport.util;
+
+public class XmlUtils {
+	/**
+	 * Remove the header tag from the top of an XML String.
+	 * Note: this removes header tags (eg &lt:?xml..., not content tags.
+	 * @param sMarker The name of the tag to be removed.
+	 */
+	public String removeHeaderTag(String sXml) {
+		String sMarkerStart = "<?";
+		String sMarker = "xml";
+		String sWhiteChars = "\r\n \t";
+		String sXmlLowerCase = sXml.toLowerCase();
+		int iPosStart = sXmlLowerCase.indexOf(sMarkerStart + sMarker);
+		if(iPosStart == -1){
+			return sXml;
+		}
+		String sMarkerEnd = "?>";
+		int iMarkerLengthEnd = sMarkerEnd.length();
+		int iPosEnd = sXmlLowerCase.indexOf(sMarkerEnd, iPosStart) + iMarkerLengthEnd;
+		sXml = sXml.substring(0, iPosStart) + sXml.substring(iPosEnd);
+		while((sXml.length() > 0) && (sWhiteChars.indexOf(sXml.substring(0,1)) != -1)){
+			sXml = sXml.substring(1);
+		}
+		return sXml;
+	}
+
+
+}

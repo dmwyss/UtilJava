@@ -1,0 +1,23 @@
+package com.championdata.fansport.util;
+
+public class MathUtils {
+
+	/**
+	 * Given y = x-root 2, returns x + 1.
+	 * For example, 16 returns 5.
+	 * The implementation of this would be you have 16 teams in a league,
+	 * therefore you will need to have 5 finals rounds to reduce them to
+	 * one (winning team).
+	 * @param iIn
+	 * @return
+	 */
+	public int getInvertedSquare(int iIn) {
+		double dIn = (double)iIn;
+		int iOut = 0;
+		while(dIn > 0.5D){
+			dIn = dIn / 2;
+			iOut++;
+		}
+		return iOut;
+	}
+}

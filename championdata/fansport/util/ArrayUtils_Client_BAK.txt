@@ -1,0 +1,325 @@
+package com.championdata.fansport.util;
+
+import java.util.ArrayList;
+
+public class ArrayUtils_Client_BAK {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		//runDifferenceCountTest();
+		//runANotInBTest();
+		//runMutuallyExclusiveTest();
+		//runMergeTest();
+		//runIntersectionTest();
+		//manageDuplicateTest();
+		//flattenTest();
+		manageDuplicatesTest();
+	}
+
+	public static void manageDuplicatesTest() {
+		ArrayList<int[]> alToCheck = new ArrayList();
+		alToCheck.add(new int[]{1, 1, 8});
+		alToCheck.add(new int[]{2, 2, 2});
+		alToCheck.add(new int[]{3, 3, 3});
+		alToCheck.add(new int[]{4, 4, 4});
+		alToCheck.add(new int[]{5, 5, 5});
+		alToCheck.add(new int[]{6, 6, 6});
+		alToCheck.add(new int[]{7, 7, 7});
+		alToCheck.add(new int[]{8, 2, 8});
+		int iTestNo = 1;
+		duplicatesTest(alToCheck, 0, false, iTestNo++);
+		duplicatesTest(alToCheck, 1, true, iTestNo++);
+		duplicatesTest(alToCheck, 2, true, iTestNo++);
+	}
+
+	private static void duplicatesTest(ArrayList<int[]> alToCheck, int iIndexInArray, boolean isExpected, int iTestNo) {
+		ArrayUtils au = new ArrayUtils();
+		boolean isResult = au.isContainsDuplicates(alToCheck, iIndexInArray);
+		if(isExpected != isResult){
+			System.out.println("FAIL: expected " + isExpected + " but got " + isResult + " (" + iTestNo + ")");
+		} else {
+			System.out.println("pass: (" + iTestNo + ")");
+		}
+	}
+
+	public static void flattenTest() {
+		ArrayUtils au = new ArrayUtils();
+
+		String[][] aasIn = new String[][]{(new String[]{"one", "two", "three", "four"}), (new String[]{"five", "six", "seven"}),(new String[]{"eight"})};
+		String[] asOut = au.flatten(aasIn);
+		System.out.println("[" + au.join(asOut, "], [") + "]");
+
+		aasIn = new String[][]{(new String[]{"one", "two", "three", "four"}), (new String[]{"five", "six", "seven"}),(null)};
+		asOut = au.flatten(aasIn);
+		System.out.println("[" + au.join(asOut, "], [") + "]");
+
+		aasIn = new String[][]{(new String[]{"one", "two", "three", "four"}), (new String[]{"five", "six", null}),(null)};
+		asOut = au.flatten(aasIn);
+		System.out.println("[" + au.join(asOut, "], [") + "]");
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void manageDuplicateTest() {
+		ArrayUtils au = new ArrayUtils();
+
+		int[] aiOri = new int[]{1,2,3,4,5,6,7,8,9};
+		int[] aiExp = new int[]{};
+		runDuplicateTest(aiOri, aiExp);
+
+		aiOri = new int[]{1,2,3,4,5,6,7,8,2};
+		aiExp = new int[]{2};
+		runDuplicateTest(aiOri, aiExp);
+
+		aiOri = new int[]{1,2,3,3,3,3,7,8,2};
+		aiExp = new int[]{3,3,3,2};
+		runDuplicateTest(aiOri, aiExp);
+
+		aiOri = new int[]{};
+		aiExp = new int[]{};
+		runDuplicateTest(aiOri, aiExp);
+
+		aiOri = new int[]{1,1,1,1,1,1,1,1,1,1};
+		aiExp = new int[]{1,1,1,1,1,1,1,1,1};
+		runDuplicateTest(aiOri, aiExp);
+
+		aiOri = new int[]{1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9};
+		aiExp = new int[]{1,2,3,4,5,6,7,8,9};
+		runDuplicateTest(aiOri, aiExp);
+
+		aiOri = new int[]{0};
+		aiExp = new int[]{};
+		runDuplicateTest(aiOri, aiExp);
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void runDuplicateTest(int[] aiOriginal, int[] aiExpected) {
+		ArrayUtils au = new ArrayUtils();
+		int[] aiDupRemo = au.getDuplicates(aiOriginal);
+		String sGot = au.join(aiDupRemo);
+		String sExp = au.join(aiExpected);
+		if(sGot.equals(sExp)){
+			System.out.println("good [" + sGot + "]");
+		} else {
+			System.out.println("BADD [" + sGot + "] but expected [" + sExp + "]");
+		}
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void runIntersectionTest() {
+		ArrayUtils au = new ArrayUtils();
+		ArrayList alOne = new ArrayList();
+		alOne.add("zero");
+		alOne.add("one");
+		alOne.add("two");
+		alOne.add("three");
+		alOne.add("four");
+		alOne.add("five");
+		ArrayList alTwo = new ArrayList();
+		alTwo.add("zero");
+		alTwo.add("one");
+		alTwo.add("two");
+		alTwo.add("three");
+		alTwo.add("four");
+		alTwo.add("five");
+		runIntersectionTest(au, alOne, alTwo, "zero,one,two,three,four,five");
+		runIntersectionTest(au, alOne, null, "");
+		alTwo.remove(5);
+		runIntersectionTest(au, alOne, alTwo, "zero,one,two,three,four");
+		alTwo.add("five");
+		alTwo.add("six");
+		runIntersectionTest(au, alOne, alTwo, "zero,one,two,three,four,five");
+		alOne.add("minusone");
+		runIntersectionTest(au, alOne, alTwo, "zero,one,two,three,four,five");
+
+		alTwo = new ArrayList();
+		alTwo.add("five");
+		alTwo.add("four");
+		alTwo.add("three");
+		alTwo.add("two");
+		alTwo.add("one");
+		alTwo.add("zero");
+		runIntersectionTest(au, alOne, alTwo, "zero,one,two,three,four,five");
+
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void runMergeTest() {
+		ArrayUtils au = new ArrayUtils();
+		ArrayList alOne = new ArrayList();
+		alOne.add("zero");
+		alOne.add("one");
+		alOne.add("two");
+		alOne.add("three");
+		alOne.add("four");
+		alOne.add("five");
+		ArrayList alTwo = new ArrayList();
+		alTwo.add("zero");
+		alTwo.add("one");
+		alTwo.add("two");
+		alTwo.add("three");
+		alTwo.add("four");
+		alTwo.add("five");
+		runMergeExclusiveTest(au, alOne, alTwo, "zero,one,two,three,four,five");
+		runMergeExclusiveTest(au, alOne, null, "zero,one,two,three,four,five");
+		alTwo.remove(5);
+		runMergeExclusiveTest(au, alOne, alTwo, "zero,one,two,three,four,five");
+		alTwo.add("five");
+		alTwo.add("six");
+		runMergeExclusiveTest(au, alOne, alTwo, "zero,one,two,three,four,five,six");
+		alOne.add("minusone");
+		runMergeExclusiveTest(au, alOne, alTwo, "zero,one,two,three,four,five,minusone,six");
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void runMutuallyExclusiveTest() {
+		ArrayUtils au = new ArrayUtils();
+		ArrayList alOne = new ArrayList();
+		alOne.add("zero");
+		alOne.add("one");
+		alOne.add("two");
+		alOne.add("three");
+		alOne.add("four");
+		alOne.add("five");
+		ArrayList alTwo = new ArrayList();
+		alTwo.add("zero");
+		alTwo.add("one");
+		alTwo.add("two");
+		alTwo.add("three");
+		alTwo.add("four");
+		alTwo.add("five");
+		runMutuallyExclusiveTest(au, alOne, alTwo, "");
+		runMutuallyExclusiveTest(au, alOne, null, "zero,one,two,three,four,five");
+		alTwo.remove(5);
+		runMutuallyExclusiveTest(au, alOne, alTwo, "five");
+		alTwo.add("five");
+		alTwo.add("six");
+		runMutuallyExclusiveTest(au, alOne, alTwo, "six");
+		alOne.add("minusone");
+		runMutuallyExclusiveTest(au, alOne, alTwo, "minusone,six");
+		alOne.set(3, "dreei");
+		runMutuallyExclusiveTest(au, alOne, alTwo, "dreei,minusone,three,six");
+	}
+
+	private static void runMutuallyExclusiveTest(ArrayUtils au, ArrayList alA, ArrayList alB, String sShouldEqual) {
+		ArrayList al = au.getSymetricDifference(alA, alB);
+		String sResult = "ok\t";
+		if(!sShouldEqual.equals(au.join(al, ","))){
+			sResult = "FAILED\t(EXPECTED:" + sShouldEqual + ")\n\t";
+		}
+		System.out.println(sResult + "(RETURNED:" + au.join(al, ",") + ")" + "\n\t(A:" + au.join(alA, ",") + "\n\t(B:" + au.join(alB, ",") + ")");
+	}
+
+	private static void runIntersectionTest(ArrayUtils au, ArrayList alA, ArrayList alB, String sShouldEqual) {
+		ArrayList al = au.getIntersection(alA, alB);
+		String sResult = "ok\t";
+		if(!sShouldEqual.equals(au.join(al, ","))){
+			sResult = "FAILED\t(EXPECTED:" + sShouldEqual + ")\n\t";
+		}
+		System.out.println(sResult + "(RETURNED:" + au.join(al, ",") + ")" + "\n\t(A:" + au.join(alA, ",") + "\n\t(B:" + au.join(alB, ",") + ")");
+	}
+
+	private static void runMergeExclusiveTest(ArrayUtils au, ArrayList alA, ArrayList alB, String sShouldEqual) {
+		ArrayList al = au.getUnion(alA, alB);
+		String sResult = "ok\t";
+		if(!sShouldEqual.equals(au.join(al, ","))){
+			sResult = "FAILED\t(EXPECTED:" + sShouldEqual + ")\n\t";
+		}
+		System.out.println(sResult + "(RETURNED:" + au.join(al, ",") + ")" + "\n\t(A:" + au.join(alA, ",") + "\n\t(B:" + au.join(alB, ",") + ")");
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void runANotInBTest() {
+		ArrayUtils au = new ArrayUtils();
+		ArrayList alOne = new ArrayList();
+		alOne.add("zero");
+		alOne.add("one");
+		alOne.add("two");
+		alOne.add("three");
+		alOne.add("four");
+		alOne.add("five");
+		ArrayList alTwo = new ArrayList();
+		alTwo.add("zero");
+		alTwo.add("one");
+		alTwo.add("two");
+		alTwo.add("three");
+		alTwo.add("four");
+		alTwo.add("five");
+		runANotInBTest(au, alOne, alTwo, "");
+		runANotInBTest(au, alOne, null, "zero,one,two,three,four,five");
+		alTwo.remove(5);
+		runANotInBTest(au, alOne, alTwo, "five");
+		alTwo.add("five");
+		alTwo.add("six");
+		runANotInBTest(au, alOne, alTwo, "");
+		/*
+		alOne.remove(5);
+		alOne.add("funf");
+		alOne.add("sechs");
+		runANotInBTest(au, alOne, alTwo, 2);
+*/	}
+
+	/**
+	 * @param args
+	 */
+	public static void runDifferenceCountTest() {
+		ArrayUtils au = new ArrayUtils();
+		ArrayList alOne = new ArrayList();
+		alOne.add("zero");
+		alOne.add("one");
+		alOne.add("two");
+		alOne.add("three");
+		alOne.add("four");
+		alOne.add("five");
+		ArrayList alTwo = new ArrayList();
+		alTwo.add("zero");
+		alTwo.add("one");
+		alTwo.add("two");
+		alTwo.add("three");
+		alTwo.add("four");
+		alTwo.add("five");
+		runDifferenceCountTest(au, alOne, alTwo, 0);
+		runDifferenceCountTest(au, alOne, null, 6);
+		alTwo.remove(5);
+		runDifferenceCountTest(au, alOne, alTwo, 1);
+		alTwo.add("five");
+		alTwo.add("six");
+		runDifferenceCountTest(au, alOne, alTwo, 1);
+		alOne.remove(5);
+		alOne.add("funf");
+		alOne.add("sechs");
+		runDifferenceCountTest(au, alOne, alTwo, 2);
+	}
+
+	private static void runDifferenceCountTest(ArrayUtils au, ArrayList alOne, ArrayList alTwo, int iShouldEqual) {
+		int iDiff = au.getDifferenceCount(alOne, alTwo);
+		String sResult = "ok";
+		if(iShouldEqual != iDiff){
+			sResult = "FAILED";
+		}
+		System.out.println(sResult + " (" + iDiff + " differences)\n\t(SRC:" + au.join(alOne, ",") + ")" + "\n\t(TRG:" + au.join(alTwo, ",") + ")");
+	}
+
+	private static void runANotInBTest(ArrayUtils au, ArrayList alA, ArrayList alB, String sShouldEqual) {
+		ArrayList al = au.getComplimentOfBInA(alA, alB);
+		String sResult = "ok\t";
+		if(!sShouldEqual.equals(au.join(al, ","))){
+			sResult = "FAILED\t";
+		}
+		System.out.println(sResult + "(" + sShouldEqual + " differences)\n\t(RETURNED:" + au.join(al, ",") + ")" + "\n\t(A:" + au.join(alA, ",") + "\n\t(B:" + au.join(alB, ",") + ")");
+	}
+
+}

@@ -1,0 +1,57 @@
+package com.championdata.fansport.util;
+
+public class StringFormatUtils_Client_RemoveNonAlpha_BAK {
+
+	public static void main(String[] as){
+		StringFormatUtils_Client_RemoveNonAlpha_BAK sfuc = new StringFormatUtils_Client_RemoveNonAlpha_BAK();
+		if(false){
+			sfuc.doRemoveNonAlphaTest("", "");
+			sfuc.doRemoveNonAlphaTest("oNe", "oNe");
+			sfuc.doRemoveNonAlphaTest(",m", "m");
+			sfuc.doRemoveNonAlphaTest(",,,", "");
+			sfuc.doRemoveNonAlphaTest("123", "");
+			sfuc.doRemoveNonAlphaTest("1b2B3", "bB");
+			sfuc.doRemoveNonAlphaTest("   ", "");
+			sfuc.doRemoveNonAlphaTest("\"this is stuff", "thisisstuff");
+		}
+		if(false){
+			sfuc.doGetBetweenTest("onetwothree", "one", "three", "two");
+			sfuc.doGetBetweenTest(null, "one", "three", "");
+			sfuc.doGetBetweenTest("onetwothree", null, "three", "");
+			sfuc.doGetBetweenTest("onetwothree", "one", null, "");
+			sfuc.doGetBetweenTest("onetwothree", "", "three", "");
+			sfuc.doGetBetweenTest("onetwothree", "three", "one", "");
+		}
+		if(true){
+			sfuc.doGetExcludingBetweenTest("zeroonetwothreefour", "one", "three", "zerofour");
+			sfuc.doGetExcludingBetweenTest("zeroonetwothreefour", "one", "sdfsd", "zeroonetwothreefour");
+			sfuc.doGetExcludingBetweenTest("zeroonetwothreefour", "dsdsadas", "three", "zeroonetwothreefour");
+			sfuc.doGetExcludingBetweenTest("zeroonetwothreefourzeroonetwothreefour", "one", "three", "zerofourzeroonetwothreefour");
+			sfuc.doGetExcludingBetweenTest(null, "one", "three", "");
+			sfuc.doGetExcludingBetweenTest("onetwothree", null, "three", "onetwothree");
+			sfuc.doGetExcludingBetweenTest("onetwothree", "one", null, "onetwothree");
+			sfuc.doGetExcludingBetweenTest("onetwothree", "", "three", "onetwothree");
+			sfuc.doGetExcludingBetweenTest("onetwothree", "three", "one", "onetwothree");
+		}
+	}
+
+	private void doGetBetweenTest(String sMaster, String sStart, String sEnd, String sExpected) {
+		StringFormatUtils sfu = new StringFormatUtils();
+		String sGot = sfu.getStringBetween(sMaster, sStart, sEnd);
+		String sMessage = ((sGot.equals(sExpected)) ? "OK" : "FAIL");
+		System.out.println(sMessage + " [" + sMaster + "] [" + sStart + "] [" + sEnd + "] [" + sExpected + "]");
+	}
+
+	private void doGetExcludingBetweenTest(String sMaster, String sStart, String sEnd, String sExpected) {
+		StringFormatUtils sfu = new StringFormatUtils();
+		String sGot = sfu.getStringExcludingBetween(sMaster, sStart, sEnd);
+		String sMessage = ((sGot.equals(sExpected)) ? "OK" : "FAIL");
+		System.out.println(sMessage + " [master:" + sMaster + "] [start:" + sStart + "] [end:" + sEnd + "] [expected:" + sExpected + "] [got:" + sGot + "]");
+	}
+
+	private void doRemoveNonAlphaTest(String sIn, String sExpected) {
+		StringFormatUtils sfu = new StringFormatUtils();
+		String sGot = sfu.removeNonAlpha(sIn);
+		System.out.println((sGot.equals(sExpected)) + " " + sGot + " - " + sExpected);
+	}
+}

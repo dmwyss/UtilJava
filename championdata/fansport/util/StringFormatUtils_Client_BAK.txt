@@ -1,0 +1,100 @@
+package com.championdata.fansport.util;
+
+import java.util.HashMap;
+
+public class StringFormatUtils_Client_BAK {
+	public static void main(String[] as){
+		StringFormatUtils_Client_BAK sfuc = new StringFormatUtils_Client_BAK();
+
+		String sUrl = "http://www.what.com?zero=nichts&one=eins&drei";
+		String sParamName = "one";
+		String sExpected = "eins";
+		sfuc.doParamHashmapTest(sUrl, sParamName, sExpected);
+
+		sUrl = "http://www.what.com?zero=nichts&one=eins&drei";
+		sParamName = "elf";
+		sExpected = "";
+		sfuc.doParamHashmapTest(sUrl, sParamName, sExpected);
+
+		sUrl = "?zero=nichts&one=eins&drei";
+		sParamName = "one";
+		sExpected = "eins";
+		sfuc.doParamHashmapTest(sUrl, sParamName, sExpected);
+
+		sUrl = "zero=nichts&one=eins&drei";
+		sParamName = "one";
+		sExpected = "eins";
+		sfuc.doParamHashmapTest(sUrl, sParamName, sExpected);
+
+		sUrl = "http://www.what.com";
+		sParamName = "one";
+		sExpected = "";
+		sfuc.doParamHashmapTest(sUrl, sParamName, sExpected);
+
+		sUrl = "zero=nichts&one=eins&drei";
+		sParamName = "one";
+		sExpected = "eins";
+		sfuc.doParamHashmapTest(sUrl, sParamName, sExpected);
+
+		sUrl = "http://www.what.com?zero=nichts&one=eins&drei";
+		sParamName = "drei";
+		sExpected = "true";
+		sfuc.doParamHashmapTest(sUrl, sParamName, sExpected);
+
+		sUrl = "zero=nichts&one=eins&drei";
+		sParamName = "zero";
+		sExpected = "nichts";
+		sfuc.doParamHashmapTest(sUrl, sParamName, sExpected);
+
+
+
+
+		if(false){
+			sfuc.doReduceRepeatedCharsTest("", 2, "");
+			sfuc.doReduceRepeatedCharsTest("3XXXXXf", 2, "3XXf");
+		}
+
+		if(false){
+			sfuc.doLeadCharsTest(null, 2, "00");
+			sfuc.doLeadCharsTest("100", 2, "100");
+			sfuc.doLeadCharsTest("1", 2, "01");
+			sfuc.doLeadCharsTest("22", 2, "22");
+			sfuc.doLeadCharsTest("", 2, "00");
+
+			sfuc.doLeadCharsTest(null, 5, "00000");
+			sfuc.doLeadCharsTest("100", 5, "00100");
+			sfuc.doLeadCharsTest("1", 5, "00001");
+			sfuc.doLeadCharsTest("22", 5, "00022");
+			sfuc.doLeadCharsTest("", 5, "00000");
+
+			sfuc.doLeadCharsTest(null, 0,  "");
+			sfuc.doLeadCharsTest("100", 0,  "100");
+			sfuc.doLeadCharsTest("1", 0,  "1");
+			sfuc.doLeadCharsTest("22", 0,  "22");
+			sfuc.doLeadCharsTest("", 0,  "");
+		}
+	}
+
+	private void doParamHashmapTest(String sUrl, String sParamName, String sExpected) {
+		StringFormatUtils sfu = new StringFormatUtils();
+		HashMap<String, String> hm = sfu.getQueryStringAsHashMap(sUrl);
+		String sGot = sfu.toSafeString(hm.get(sParamName));
+		String sOut = "ok [param:" + sParamName + "][returned:" + sGot + "]";
+		if(!sGot.equals(sExpected)){
+			sOut = "BAD [url:" + sUrl + "][param:" + sParamName + "][returned:" + sGot + "][expected:" + sExpected + "]";
+		}
+		System.out.println(sOut);
+	}
+
+	private void doReduceRepeatedCharsTest(String sIn, int iMaxRepeats, String sExpected) {
+		StringFormatUtils sfu = new StringFormatUtils();
+		String sGot = sfu.reduceRepeatedChars(sIn, iMaxRepeats);
+		System.out.println((sGot.equals(sExpected)) + " " + sGot + " - " + sExpected);
+	}
+
+	private void doLeadCharsTest(String sIn, int iLength, String sExpected) {
+		StringFormatUtils sfu = new StringFormatUtils();
+		String sGot = sfu.getWithLeadingZeros(sIn, iLength);
+		System.out.println((sGot.equals(sExpected)) + " " + sGot + " - " + sExpected);
+	}
+}

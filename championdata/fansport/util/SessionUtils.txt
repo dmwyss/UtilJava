@@ -1,0 +1,119 @@
+package com.championdata.fansport.util;
+
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.PageContext;
+
+import com.championdata.fansport.Constants;
+import com.championdata.fansport.model.CompetitionCache;
+import com.championdata.fansport.model.CompetitionVO;
+import com.championdata.fansport.model.USquadDAO;
+import com.championdata.fansport.model.USquadTradeListCache;
+import com.championdata.fansport.model.USquadVO;
+import com.championdata.fansport.model.UserCompdataDAO;
+import com.championdata.fansport.model.UserCompdataVO;
+import com.championdata.fansport.model.UserCredentials;
+import com.championdata.fansport.model.UserDAO;
+import com.championdata.fansport.model.UserVO;
+
+public class SessionUtils {
+
+	public void dumpSession(HttpSession session) {
+		Object objUserCred = session.getAttribute(Constants.USERCREDENTIALS_BEAN_NAME);
+		if(objUserCred != null){
+			session.removeAttribute(Constants.USERCREDENTIALS_BEAN_NAME);
+		}
+		Object objCompdata = session.getAttribute(Constants.USERCOMPDATA_BEAN_NAME);
+		if(objCompdata != null){
+			session.removeAttribute(Constants.USERCOMPDATA_BEAN_NAME);
+		}
+		USquadTradeListCache cache = new USquadTradeListCache();
+		cache.dump(session);
+	}
+
+	/**
+	 * Set up a URL giving enough information for the system to resume the session in another competition.
+	 * @param pagecontext
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public String getResumeSessionUrl(PageContext pagecontext, HttpServletRequest request, HttpServletResponse response){
+
+		String sOut = "http://yahoo.com"; // If it all falls apart.
+		try{
+			int iCompId = (new StringFormatUtils()).toSafeInt(request.getParameter("compid"));
+			com.championdata.fansport.model.CompetitionVO cvo = (new CompetitionCache()).getCompetition(pagecontext.getServletContext(), iCompId);
+			UserCompdataVO ucd = (UserCompdataVO)request.getSession().getAttribute(Constants.USERCOMPDATA_BEAN_NAME);
+			UserCredentials uc = (UserCredentials)request.getSession().getAttribute(Constants.USERCREDENTIALS_BEAN_NAME);
+			sOut = cvo.getBaseUrl() + "/jsp/compSwapResume.jsp?compid=" + iCompId + "&email=" + uc.getEmail() + "&password=" + URLEncoder.encode(uc.getPassword(), "UTF-8");
+		} catch (Exception e) {
+			sOut = (new CompetitionCache()).getCompetition(request).getBaseUrl();
+		}
+		return sOut;
+	}
+
+	/**
+	 * Pick up a session, using query string parameters.
+	 * @param pagecontext
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public String resumeSession(PageContext pagecontext, HttpServletRequest request, HttpServletResponse response){
+		boolean isGood = true;
+		String sUrl = "http://yahoo.com";
+		try {
+			String sEmail = request.getParameter("email");
+			if(isGood){
+				if(sEmail == null){
+					isGood = false;
+				}
+			}
+			String sPassword = request.getParameter("password");
+			if(isGood){
+				if(sPassword == null){
+					isGood = false;
+				} else {
+					sPassword = URLDecoder.decode(sPassword, "UTF-8");
+				}
+			}
+			CompetitionVO cvo = null;
+			if(isGood){
+				CompetitionCache coco = new CompetitionCache();
+				//String sCompId = Integer.toString(coco.getSafeCompId(request));
+				int iCompId = coco.getSafeCompId(request);
+				request.getSession().setAttribute(Constants.USERSESSION_COMPID_BEAN_NAME, iCompId);
+				coco.setCompetitionIdCookie(response, "" + iCompId);
+				cvo = (new com.championdata.fansport.display.tags.CompetitionDataBean()).getData(pagecontext);
+				if(iCompId == 0){
+					isGood = false;
+				}
+			}
+			if(isGood){
+				UserDAO uf = new UserDAO();
+				UserVO uvo = uf.getUserVO(sEmail, sPassword);
+				USquadDAO usdao = new USquadDAO();
+				USquadVO usvo = usdao.fetchUSquadVO(uvo.getIdAsInt(), cvo.getId());
+				UserCredentials uc = new UserCredentials(uvo, usvo);
+				UserCompdataDAO ucdvo = new UserCompdataDAO();
+				UserCompdataVO ucd = ucdvo.getCompData(cvo, uc, usvo);
+				request.getSession().setAttribute(Constants.USERCREDENTIALS_BEAN_NAME, uc);
+				request.getSession().setAttribute(Constants.USERCOMPDATA_BEAN_NAME, ucd);
+				String sStamp = Long.toString(Math.round(Math.random() * 10000000));
+				if(uc.isAdministrator()){
+					sUrl = cvo.getBaseUrl() + "/adminjsp/updateCompetition.jsp?stamp=" + sStamp;
+				} else {
+					sUrl = cvo.getBaseUrl() + "/jspforms/configureUSquad.jsp?stamp=" + sStamp;
+				}
+			}
+		} catch (Exception e) {
+			sUrl = (new CompetitionCache()).getCompetition(request).getBaseUrl();
+		}
+		return sUrl;
+	}
+}

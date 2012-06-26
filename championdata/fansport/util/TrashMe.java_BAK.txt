@@ -1,0 +1,114 @@
+package com.championdata.fansport.util;
+
+public class TrashMe {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		if(false){
+			int iCount = 0;
+			String sAlpha = "abcdefghijklmnopqrstuvwxyz";
+			for (int iTwo = 0; iTwo < sAlpha.length(); iTwo++) {
+				String sTwo = (new Character(sAlpha.charAt(iTwo))).toString();
+				for (int iOne = 0; iOne < sAlpha.length(); iOne++) {
+					String sOne = (new Character(sAlpha.charAt(iOne))).toString();
+					System.out.println(iCount + " " + (sOne.toUpperCase() + sTwo) + "$" + (sOne.toUpperCase() + sTwo));
+					iCount++;
+				}
+			}
+		} else {
+			String sAlpha = "abcdefghijklmnopqrstuvwxyz";
+			String[] asAlpha = new String[]{
+					"Andrew"
+					,"Bert"
+					,"Cameron"
+					,"David"
+					,"Evan"
+					,"Frank"
+					,"Gita"
+					,"Harry"
+					,"Ian"
+					,"John"
+					,"Kevin"
+					,"Liam"
+					,"Michael"
+					,"Nicholas"
+					,"Oliver"
+					,"Peter"
+					,"Quentin"
+					,"Rhia"
+					,"Steve"
+					,"Tom"
+					,"Una"
+					,"Victor"
+					,"Walter"
+					,"Xavier"
+					,"Yin"
+					,"Zach"
+			};
+			String[] asSuffix = new String[]{
+					"stoper"
+					,""
+					,"son"
+					,""
+					,"kovich"
+					,""
+					,"-Smythe"
+					,"ski"
+					,"anopolis"
+					,""
+			};
+			String[] asPrefix = new String[]{
+					""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,""
+					,"Mc"
+			};
+			String[] asGender = new String[]{
+					"M"
+					,"M"
+					,"F"
+					,"M"
+					,"F"
+					,"M"
+					,"F"
+					,"M"
+					,"F"
+					,"M"
+					,"M"
+			};
+			int iCount = 0;
+
+			for (int iTwo = 0; iTwo < asAlpha.length; iTwo++) {
+				String sTwo = asAlpha[iTwo];
+				String sTwoShort = (new Character(sAlpha.charAt(iTwo))).toString();
+				for (int iOne = 0; iOne < asAlpha.length; iOne++) {
+					String sOneShort = (new Character(sAlpha.charAt(iOne))).toString();
+					String sOne = asAlpha[iOne];
+					System.out.println((sOneShort.toUpperCase() + sTwoShort) + "$" + (sOneShort.toUpperCase() + sTwoShort)
+							+ "$" + sOne + "$" + asPrefix[iCount % asPrefix.length] + sTwo + asSuffix[iCount % asSuffix.length] + "$" + asGender[iCount % asGender.length]);
+					iCount++;
+				}
+			}
+		}
+	}
+
+}

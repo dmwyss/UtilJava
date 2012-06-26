@@ -1,0 +1,49 @@
+package com.championdata.fansport.util;
+
+import java.util.ArrayList;
+
+public class ArrayUtils_Venn_Client_BAK {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		doTestOne();
+	}
+
+	public static void doTestOne(){
+		ArrayUtils au = new ArrayUtils();
+
+		ArrayList alDbReserves = new ArrayList();
+		alDbReserves.add("4");
+		alDbReserves.add("5");
+		alDbReserves.add("6");
+		ArrayList alJspReserves = new ArrayList();
+		alJspReserves.add("2");
+		alJspReserves.add("4");
+		alJspReserves.add("8");
+		// Get the JSP reserves, but remove the ones that were already in the DB.
+		ArrayList alChangedToReserve = au.getComplimentOfBInA(alJspReserves, alDbReserves);
+
+		ArrayList alDbEmergency = new ArrayList();
+		alDbEmergency.add("7");
+		alDbEmergency.add("8");
+		alDbEmergency.add("9");
+		ArrayList alJspEmergency = new ArrayList();
+		alJspEmergency.add("3");
+		alJspEmergency.add("6");
+		alJspEmergency.add("7");
+		// Get the JSP emergencies, but remove the ones that were already in the DB.
+		ArrayList alChangedToEmergency = au.getComplimentOfBInA(alJspEmergency, alDbEmergency);
+
+		ArrayList alResAndEmgDb = au.getUnion(alDbReserves, alDbEmergency);
+		ArrayList alResAndEmgJsp = au.getUnion(alJspReserves, alJspEmergency);
+		// Changed to onfield is get (R and E DB) get ones missing from (R and E in JSP)
+		ArrayList alChangedToOnfield = au.getComplimentOfBInA(alResAndEmgDb, alResAndEmgJsp);
+
+		System.out.println("change to res " + au.join(alChangedToReserve));
+		System.out.println("change to emg " + au.join(alChangedToEmergency));
+		System.out.println("change to onf " + au.join(alChangedToOnfield));
+
+	}
+}

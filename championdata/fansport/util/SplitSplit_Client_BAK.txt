@@ -1,0 +1,25 @@
+package com.championdata.fansport.util;
+
+import com.championdata.fansport.model.AdminContentDAO;
+
+public class SplitSplit_Client_BAK {
+
+	public static void main(String[] args) {
+		String sCompIdLists = "[4001,7000,8001,4000,2001,2000,3000,1000]\r\n[3001,8001]";
+		doSplitSplit(sCompIdLists);
+	}
+
+	public static void doSplitSplit(String sCompIdLists){
+		ReplaceSubstring rs = new ReplaceSubstring();
+		ArrayUtils au = new ArrayUtils();
+		sCompIdLists = rs.replaceSubstring(sCompIdLists, (new String[]{"\n","\r","\t"," "}), (new String[]{""}));
+		sCompIdLists = sCompIdLists.substring(sCompIdLists.indexOf("[") + 1);
+		sCompIdLists = sCompIdLists.substring(0, sCompIdLists.lastIndexOf("]"));
+		String[] as = au.split(sCompIdLists, "][");
+		String[][] aas = new String[as.length][];
+		for(int iA = 0; iA < as.length; iA++){
+			aas[iA] = au.split(as[iA], ",");
+		}
+		String[][] asdefdsfs = aas;
+	}
+}

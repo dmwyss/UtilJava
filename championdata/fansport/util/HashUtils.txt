@@ -1,0 +1,77 @@
+package com.championdata.fansport.util;
+
+/**
+ * Utilities for managing hashstrings.
+ * @author david.wyss
+ */
+public class HashUtils {
+
+	// String where there are no repeated sequences of (alpha-numeric) characters.
+	// This is used for generating strings. NOTE: Using this to generate strings is not guaranteed to be unique.
+	public final static String SOURCE = "UW5D41YH3XPMR2KCT9QVN8AGJ7ZEBLFS6J8RBW7NEAQ6VDL95ZUP4KYC3HGX2TFMSZ1AHBQ9Y2C8LD7PX63EKFWO5TJSMVGRN4U77Y9SPVT55N77ID";
+	// Sequential alphabet in uppercase. This is used for disguising numbers as strings.
+	// NOTE: Do not change this set during a competition, or the generated numbers are not guaranteed to be unique.
+	public final static String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	// Sequential base alpha numeric chars in uppercase. This is used for converting to base-x numbers.
+	// NOTE: Do not change this set during a competition, or the generated numbers are not guaranteed to be unique.
+	public final static String ALPHANUMERIC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	// Reverse sequence base alpha (uppercase) numeric chars to make selection of them difficult to identify.
+	// NOTE: Do not change this set during a competition, or the generated numbers are not guaranteed to be unique.
+	public final static String HASHCLEAR = "ZYXWVUTSRQPNMLKJHGFEDCBA98765432";
+
+	/**
+	 * Generate a string of randomly generated characters.
+	 * Approximate likelyhood of repeated strings is 1/10,000.
+	 * @return Randomly generated alpha numeric string in uppercase.
+	 */
+	public static String generateRandomString(){
+		int iPosOne = (int)Math.round(Math.random() * 100);
+		int iPosTwo = (int)Math.round(Math.random() * 100);
+		return SOURCE.substring(iPosOne, iPosOne + 5) + SOURCE.substring(iPosTwo, iPosTwo + 5);
+	}
+
+	/**
+	 * Create a key that is guaranteed to be unique.
+	 * The main parts of the method, resolve the three ids (numbers) to a base 29 value.
+	 * These generated values will not ever contain either 2, 4 or 3, so these are hidden separators.
+	 * This value is not easily identified as to how it is created, but the combination of the 3 input number ids will always be unique.
+	 * @param idOne One of the keys combining to make a unique key.
+	 * @param idTwo Another key, combining to make a unique key.
+	 * @param idThree Another key, combining to make a unique key.
+	 * @return Key based on the id values given to identify a team, encrypted in an APPARENTLY random string.
+	 */
+	public String generateUniqueKey(int idOne, int idTwo) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(resolveToBase(idOne, 29, HASHCLEAR));
+		sb.append("2");
+		sb.append(resolveToBase(idTwo, 29, HASHCLEAR));
+		sb.append("4");
+//sb.append(resolveToBase(idThree, 29, HASHCLEAR));
+//sb.append("3");
+		sb.append(generateRandomString());
+		sb.append(generateRandomString());
+		return sb.substring(0, 10);
+	}
+
+	/**
+	 * Convert a number to an alpha-numeric string.
+	 * Typically, this is used to disguise numbers or to shorten them when converting to strings.
+	 * @param numberToResolve Original number to convert.
+	 * @param base Mathematical base index.
+	 * @param charPicker Which character array to use as conveter. Some of these are randomly generated to disguise the original value.
+	 * @return String representing the original value.
+	 */
+	public String resolveToBase(int numberToResolve, int base, String charPicker) {
+		StringBuffer sb = new StringBuffer();
+		int iRest = numberToResolve;
+		int iWhole = Math.round(iRest / base);
+		while(iWhole > 0){
+			int iTemp = iRest - (iWhole * base);
+			sb.insert(0, charPicker.charAt(iTemp));
+			iRest = iWhole;
+			iWhole = Math.round(iRest / base);
+		}
+		sb.insert(0, charPicker.charAt(iRest - (iWhole * base)));
+		return sb.toString();
+	}
+}

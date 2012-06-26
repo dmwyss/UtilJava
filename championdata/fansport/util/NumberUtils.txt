@@ -1,0 +1,60 @@
+package com.championdata.fansport.util;
+
+public class NumberUtils {
+
+	/**
+	 * Return a value from between two values.
+	 * @param iLow Lowest possible value.
+	 * @param iHigh Highest possible value.
+	 */
+	public int getRandomBetween(int iLow, int iHigh){
+		if(iLow == iHigh){
+			return iLow;
+		}
+		if(iLow > iHigh){
+			int iLowOld = iLow;
+			iLow = iHigh;
+			iHigh = iLowOld;
+		}
+		int iFactor = 1000;
+		int iOut = iLow;
+		int iHighFromZero = iHigh - iLow + 1;
+		while (iHighFromZero > iFactor) {
+			try {
+				iFactor *= 1000;
+			} catch (Exception e){
+				iFactor = 10000;
+			}
+		}
+		iOut = (int)Math.round(Math.random() * iFactor);
+		iOut = (iOut % iHighFromZero) + iLow;
+		return iOut;
+	}
+
+	/**
+	 * Select a value from an array.
+	 * @param ai Int array, from which the winner is chosen.
+	 */
+	public int getRandomIn(int[] ai) {
+		if((ai == null) || (ai.length == 0)){
+			return 0;
+		}
+		int iIndex = getRandomBetween(0, ai.length - 1);
+		return ai[iIndex];
+	}
+
+	/**
+	 * Get the number of row-groups (pages) required to display the given number of rows.
+	 * This does not work properly when using the ceil method, as you would expect.
+	 * @param iTotalRows
+	 * @param iRowsPerPage
+	 * @return Number to show all the rows in groups.
+	 */
+	public int getPagesRequired(int iTotalRows, int iRowsPerPage){
+		int iPagesRequired = Math.round(iTotalRows / iRowsPerPage);
+		if((iPagesRequired * iRowsPerPage) < iTotalRows){
+			iPagesRequired++;
+		}
+		return iPagesRequired;
+	}
+}

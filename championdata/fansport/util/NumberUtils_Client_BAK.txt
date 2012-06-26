@@ -1,0 +1,143 @@
+package com.championdata.fansport.util;
+
+public class NumberUtils_Client_BAK {
+
+	private static int iRuns = 0;
+	private static int iFails = 0;
+	private static int iToMin = 0;
+	private static int iToMax = 0;
+
+	public static void main(String[] args) {
+		if(true){
+			doGetPagesRequredTest(100, 10, 10);
+			doGetPagesRequredTest(101, 10, 11);
+			doGetPagesRequredTest(99, 10, 10);
+			doGetPagesRequredTest(98, 10, 10);
+			doGetPagesRequredTest(0, 10, 0);
+			doGetPagesRequredTest(1, 10, 1);
+			doGetPagesRequredTest(4, 10, 1);
+			doGetPagesRequredTest(5, 10, 1);
+			doGetPagesRequredTest(6, 10, 1);
+		}
+		if(false){
+			for (int i = 0; i < 1000; i++) {
+				for (int iInner = 0; iInner < 100; iInner++) {
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 9);
+					doGetRandomInTest(new int[]{0,1,2,3,4,5,6,7,8,9}, 0, 10);
+					doGetRandomInTest(new int[]{0,-1,-2,-3,-4,-5,-6,-7,-8,-9}, -0, -10);
+					doGetRandomInTest(new int[]{0,-1,2,-3,4,-5,6,-7,8,-9,10,-10}, -10, 10);
+					doGetRandomInTest(new int[]{10,1000}, 10, 1000);
+				}
+			}
+			System.out.println("ran:[" + iRuns + "] failed:[" + iFails + "] toMin:[" + iToMin + "] toMax:[" + iToMax + "]");
+		}
+		if(false){
+			for (int i = 0; i < 1000; i++) {
+				for (int iInner = 0; iInner < 100; iInner++) {
+					/*
+					 */
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 1);
+					doGetRandomBetweenTest(0, 10);
+					doGetRandomBetweenTest(0, 10000000);
+					doGetRandomBetweenTest(0, 100000);
+					doGetRandomBetweenTest((int)Math.round(Math.random() * 10), (int)Math.round(Math.random() * 1000000));
+					doGetRandomBetweenTest(-0, -10);
+					doGetRandomBetweenTest(-10, 10);
+					doGetRandomBetweenTest(1000, 10);
+					doGetRandomBetweenTest(0, 10000);
+					doGetRandomBetweenTest(10, 10000);
+					doGetRandomBetweenTest(10, 10);
+				}
+			}
+			System.out.println("ran:[" + iRuns + "] failed:[" + iFails + "] toMin:[" + iToMin + "] toMax:[" + iToMax + "]");
+		}
+	}
+
+	private static void doGetRandomInTest(int[] ai, int iLow, int iHigh) {
+		NumberUtils nu = new NumberUtils();
+		int iGot = nu.getRandomIn(ai);
+		if((iGot == iLow) && (iLow == iHigh)){
+			//System.out.println("           ok [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			//System.out.println("--");
+			iToMin++;
+			iToMax++;
+		} else if((iGot == iLow)){
+			//System.out.println("           ok [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			//System.out.println("--");
+			iToMin++;
+		} else if(iGot == iHigh){
+			//System.out.println("           ok [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			//System.out.println("--");
+			iToMax++;
+		} else if((iGot >= iLow) && (iGot <= iHigh)){
+			//System.out.println("           ok [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			//System.out.println("--");
+		} else if((iGot >= iHigh) && (iGot <= iLow)){
+			//System.out.println("           ok [" + iHigh + "] & [" + iLow + "] = [" + iGot + "]");
+			//System.out.println("--");
+		} else {
+			System.out.println("FAILURE ::::: [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			iFails++;
+		}
+		iRuns++;
+	}
+
+	private static void doGetRandomBetweenTest(int iLow, int iHigh) {
+		NumberUtils nu = new NumberUtils();
+		int iGot = nu.getRandomBetween(iLow, iHigh);
+		if((iGot == iLow) && (iLow == iHigh)){
+			//System.out.println("           ok [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			//System.out.println("--");
+			iToMin++;
+			iToMax++;
+		} else if((iGot == iLow)){
+			//System.out.println("           ok [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			//System.out.println("--");
+			iToMin++;
+		} else if(iGot == iHigh){
+			//System.out.println("           ok [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			//System.out.println("--");
+			iToMax++;
+		} else if((iGot >= iLow) && (iGot <= iHigh)){
+			//System.out.println("           ok [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			//System.out.println("--");
+		} else if((iGot >= iHigh) && (iGot <= iLow)){
+			//System.out.println("           ok [" + iHigh + "] & [" + iLow + "] = [" + iGot + "]");
+			//System.out.println("--");
+		} else {
+			System.out.println("FAILURE ::::: [" + iLow + "] & [" + iHigh + "] = [" + iGot + "]");
+			iFails++;
+		}
+		iRuns++;
+	}
+
+	private static void doGetPagesRequredTest(int iRows, int iRowsPerPage, int iExpected) {
+		NumberUtils nu = new NumberUtils();
+		int iGot = nu.getPagesRequired(iRows, iRowsPerPage);
+		if(iGot == iExpected){
+			System.out.println("OK:   rows:" + iRows + " pages:" + iRowsPerPage + " expected&got:" + iExpected + "");
+		} else {
+			System.out.println("FAIL: rows" + iRows + " pages:" + iRowsPerPage + " expected:" + iExpected + " got:" + iGot + "");
+		}
+	}
+}

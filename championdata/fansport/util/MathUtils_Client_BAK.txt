@@ -1,0 +1,38 @@
+package com.championdata.fansport.util;
+
+public class MathUtils_Client_BAK {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// Test these...
+		runInvertedSquareTest(1, 1);
+		runInvertedSquareTest(2, 2);
+		runInvertedSquareTest(3, 3);
+		runInvertedSquareTest(4, 3);
+		runInvertedSquareTest(7, 4);
+		runInvertedSquareTest(8, 4);
+		runInvertedSquareTest(9, 5);
+		runInvertedSquareTest(15, 5);
+		runInvertedSquareTest(16, 5);
+		runInvertedSquareTest(17, 6);
+		runInvertedSquareTest(20, 6);
+		runInvertedSquareTest(32, 6);
+		runInvertedSquareTest(33, 7);
+		runInvertedSquareTest(50, 7);
+		runInvertedSquareTest(63, 7);
+		runInvertedSquareTest(64, 7);
+	}
+
+	private static void runInvertedSquareTest(int iIn, int iShouldBe) {
+		MathUtils mu = new MathUtils();
+		int iOut = mu.getInvertedSquare(iIn);
+		boolean isCorrect = (iOut == iShouldBe);
+		String sResult = "ok (" + iIn + " = " + iOut + ")";
+		if(!isCorrect){
+			sResult = "FAIL (" + iIn + " = " + iOut + ", should be " + iShouldBe + ")";
+		}
+		System.out.println(sResult);
+	}
+}

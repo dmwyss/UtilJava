@@ -1,0 +1,57 @@
+package com.championdata.fansport.util;
+
+import org.apache.log4j.Logger;
+
+/**
+ * Report errors that have occurred during processing.
+ * @author david.wyss
+ */
+public class ErrorReporter {
+
+	private static final Logger log  = Logger.getLogger(ErrorReporter.class);
+
+	public static int SEVERITY_DEADLY = 4;
+	public static int SEVERITY_HIGH = 3;
+	public static int SEVERITY_MEDIUM = 2;
+	public static int SEVERITY_LOW = 1;
+
+	private static final String[] severities = new String[]{"VERY_LOW", "LOW", "MEDIUM", "HIGH", "DEADLY"};
+
+	/**
+	 * Accept notification of a problem having occurred.
+	 * @param severity
+	 * @param objectSource
+	 * @param methodName
+	 * @param message
+	 */
+	public static void reportError(int severity, Object objectSource, String methodName, String message) {
+		log.error("*************************\n\t[" + getSeverityMessage(severity) + "]\n\t[class=" + objectSource.getClass() + "] [method=" + methodName + "] [message=" + message + "]\n*****************************");
+	}
+
+	/**
+	 * Accept notification of a problem having occurred.
+	 * @param severity
+	 * @param objectSource
+	 * @param methodName
+	 * @param message
+	 * @param e
+	 */
+	public static void reportError(int severity, Object objectSource, String methodName, String message, Exception e) {
+		//reportError(severity, objectSource, methodName, message, e.get);
+		log.error("*************************\n" + objectSource.getClass() + " " + methodName + " " + message + " " + e.getMessage() + "]\n*****************************");
+	}
+
+	/**
+	 * Convert a severity number to a readable message.
+	 * @param severity
+	 * @return Readable message.
+	 */
+	private static String getSeverityMessage(int severity){
+		if(severity < 0){
+			severity = 0;
+		} else if(severity > 4){
+			severity = 4;
+		}
+		return severities[severity];
+	}
+}

@@ -1,0 +1,61 @@
+package com.championdata.fansport.util;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+public class DateUtils_Client {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		if(false){
+			runTestFormat("12-12-2007", "dd-MM-yyyy");
+			runTestFormat("01-02-1900", "dd-MM-yyyy");
+			runTestFormat("80-177-7", "dd-MM-yyyy");
+			runTestFormat("", "dd-MM-yyyy");
+		}
+		if(false){
+			runTestOffsetMinusHours((new java.util.Date()), 1);
+			runTestOffsetMinusHours((new java.util.Date()), 0);
+			runTestOffsetMinusHours((new java.util.Date()), 100);
+			runTestOffsetMinusHours((new java.util.Date()), 10000);
+			runTestOffsetMinusHours((new java.util.Date()), -1);
+			runTestOffsetMinusHours((new java.util.Date()), -8);
+		}
+		if(true){
+			int[] aiOffset = {12, 0, -12, 12323, -233334};
+			for (int iOffCount = 0; iOffCount < aiOffset.length; iOffCount++) {
+				java.util.Calendar cal = java.util.Calendar.getInstance();
+				cal.setTime(new java.util.Date());
+				int iOffset = aiOffset[iOffCount];
+				cal.add(Calendar.MINUTE, iOffset);
+				runTestHoursDifference((new java.util.Date()), cal.getTime(), iOffset);
+			}
+		}
+	}
+
+	private static void runTestFormat(String sDateIn, String sFormat){
+		com.championdata.fansport.util.DateUtils du = new com.championdata.fansport.util.DateUtils();
+		java.util.Date dt = du.toJavaUtilDate(sDateIn, sFormat, (new java.util.Date()));
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		String sCircular = sdf.format(dt);
+		String sStatus = "ok";
+		if(!sDateIn.equals(sCircular)){
+			sStatus = "(" + sDateIn + " != " + sCircular + ")";
+		}
+		System.out.println(dt + " " + sStatus);
+	}
+
+	private static void runTestOffsetMinusHours(java.util.Date dtIn, int iHoursOffset){
+		com.championdata.fansport.util.DateUtils du = new com.championdata.fansport.util.DateUtils();
+		java.util.Date dtOut = du.getDateTimeMinusHours(dtIn, iHoursOffset);
+		System.out.println("Now minus " + iHoursOffset + " is " + dtOut);
+	}
+
+	private static void runTestHoursDifference(java.util.Date dtEarlier, java.util.Date dtLater, int iExpected){
+		com.championdata.fansport.util.DateUtils du = new com.championdata.fansport.util.DateUtils();
+		int iComputed = du.getMinutesDifference(dtEarlier, dtLater);
+		System.out.println(((iComputed == iExpected) ? "OK:  " : "ERR: ") + "Diff between [" + dtEarlier + "] and [" + dtLater + "] is [" + iComputed + "]" + ((iComputed == iExpected) ? "" : " SHOULD BE [" + iExpected + "]"));
+	}
+}
