@@ -436,9 +436,9 @@ public class ArrayUtils {
 			return alB;
 		}
 		if((alB == null) || (alB.size() == 0)){
-			if(alA == null){
-				return alOut;
-			}
+			//if(alA == null){
+			//	return alOut;
+			//}
 			return alA;
 		}
 		String sB = "," + join(alB, ",") + ",";

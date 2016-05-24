@@ -51,9 +51,19 @@ public class HtmlTag {
 		this.body = body;
 	}
 
+	public String getValueForParameterSafe(String sKey, String sDefault) {
+		String sOut = getValueForParameter(sKey);
+		if(sOut == null){
+			return sDefault;
+		}
+		return sOut;
+
+	}
+
 	public String getValueForParameter(String sKey) {
 		//for(int iParamCounter = 0; iParamCounter < this.parameters.size(); i)
-		return parameters.get(sKey);
+		String sValue = parameters.get(sKey);
+		return ((sValue == null) ? "" : sValue);
 	}
 
 

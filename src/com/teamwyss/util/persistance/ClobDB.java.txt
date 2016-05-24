@@ -1,0 +1,28 @@
+package com.teamwyss.util.persistance;
+
+import com.teamwyss.util.FileUtils;
+
+public class ClobDB {
+
+	private String dirParent = "";
+
+	public ClobDB(String dirParent) {
+		this.setDirParent(dirParent);
+	}
+
+	public String getDirParent() {
+		return dirParent;
+	}
+
+	public void setDirParent(String dirParent) {
+		this.dirParent = dirParent;
+	}
+
+	public Clob saveClob(String sFileName, String sFileContent) {
+		Clob clobOut = new Clob(this.dirParent, sFileName, sFileContent);
+		clobOut.setContent(sFileContent);
+		FileUtils fu = new FileUtils();
+		fu.setFileContents(clobOut.getFilePathAndName(), sFileContent);
+		return clobOut;
+	}
+}

@@ -97,7 +97,7 @@ public class DateUtils {
 	 */
 	public long getMinutesDifference(Date dtEarlier, Date dtLater) {
 		long longDiff = dtLater.getTime() - dtEarlier.getTime();
-		return (long)(longDiff / (60000));
+		return longDiff / (60000);
 	}
 
 	/**
@@ -142,11 +142,12 @@ public class DateUtils {
 			dtLater = dtTemp;
 		}
 		long lngDiff = this.getMinutesDifference(dtEarlier, dtLater);
+		lngDiff = Math.min(lngDiff, 359999);
 		long lngMins = (lngDiff % 60);
 		lngDiff = Math.round((lngDiff - lngMins) / 60);
 		long lngHrs = (lngDiff % 60);
 		lngDiff = Math.round((lngDiff - lngHrs) / 60);
-		//String sOut = (new StringUtils()).
+		// This line maxes the time to 2 chars.
 		StringFormatUtils sfu = new StringFormatUtils();
 		String sOut = sfu.getWithLeadingZeros(lngDiff, 2)
 				+ " " + sfu.getWithLeadingZeros(lngHrs, 2)
@@ -163,7 +164,7 @@ public class DateUtils {
 		cal.set(Calendar.MILLISECOND, 0);
 		return cal.getTime();
 	}
-	
+
 	public long getDaysDifference(Date dtOne, Date dtTwo) {
 		long lngOne = floor(dtOne).getTime();
 		long lngTwo = floor(dtTwo).getTime();
